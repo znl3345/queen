@@ -1,76 +1,76 @@
 ---
 name: customer-issue-todo-list
-description: Use when the user imports a meeting note, customer feedback document, issue collection record, DOCX, or Markdown file and asks to generate, regenerate, extract, or output a “客户问题收集待办列表”, “问题收集待办”, “重点待办台账”, “问题清单详情”, “客户问题模板”, or similar Chinese follow-up document.
+description: 当用户导入会议纪要、客户反馈文档、问题收集记录、DOCX 或 Markdown 文件，并要求生成、重新生成、抽取或输出“客户问题收集待办列表”“问题收集待办”“重点待办台账”“问题清单详情”“客户问题模板”等中文跟进文档时使用。
 ---
 
-# Customer Issue Todo List
+# 客户问题收集待办列表
 
-## Overview
+## 概述
 
-Extract an imported document into the same template style as the reference document `2026-04-24下午 张顾问跟进优邦PLM系统录入问题.docx`. Treat every structural element in that reference as template requirements; replace only the concrete meeting content with the new document's facts.
+将导入文档抽取为参考文档 `2026-04-24下午 张顾问跟进优邦PLM系统录入问题.docx` 的同款模板。参考文档中除具体会议内容外，所有结构元素都视为模板要求；生成时只替换为新文档中的事实内容。
 
-## Required Output Shape
+## 必须保留的输出结构
 
-Use `assets/customer-issue-todo-template.md` as the required skeleton. Preserve this order:
+以 `assets/customer-issue-todo-template.md` 为固定骨架。必须保持以下顺序：
 
-1. Title line: `{日期/时间段} {跟进人或会议名称}{客户/系统}{问题主题}`
-2. Metadata line: `会议时间：{时间}参会人员：{人员列表}`
+1. 标题行：`{日期/时间段} {跟进人或会议名称}{客户/系统}{问题主题}`
+2. 会议信息行：`会议时间：{时间}参会人员：{人员列表}`
 3. `一、会议结论简述`
 4. `二、重点待办台账`
 5. `三、问题清单详情描述如下`
-6. Priority detail groups:
+6. 按优先级展开的问题详情：
    - `高优先级待办`
    - `中优先级待办`
    - `低优先级待办（体验优化）`
 
-Do not add unrelated summary sections such as “按责任人汇总”“建议推进顺序” unless the user explicitly asks. The reference document's structure is the contract.
+除非用户明确要求，不要额外增加“按责任人汇总”“建议推进顺序”等参考文档中没有的章节。参考文档的结构就是输出约束。
 
-## Extraction Rules
+## 抽取规则
 
-- Keep the document in Chinese.
-- Use Markdown by default. If the user asks for Word, create a DOCX using the same content structure.
-- Preserve source-specific names, systems, modules, account names, material codes, examples, and dates.
-- Do not invent people, statuses, deadlines, or impact ranges. If missing, write `待确认`.
-- Merge duplicate issues only when they clearly describe the same problem and share the same owner/priority.
-- Split an issue when the source implies different owners, priorities, or follow-up actions.
+- 全文使用中文。
+- 默认输出 Markdown；如果用户要求 Word，则按同样内容结构生成 DOCX。
+- 保留源文档中的姓名、系统名称、模块名称、账号名称、物料编码、示例和日期。
+- 不编造责任人、状态、截止时间或影响范围。源文档缺失时写 `待确认`。
+- 只有当多个问题明显描述同一件事，且责任人和优先级一致时，才合并为一项。
+- 如果一个问题涉及不同责任人、不同优先级或不同后续动作，应拆分成多项。
 
-## Section Rules
+## 章节规则
 
-### Title And Metadata
+### 标题和会议信息
 
-- Derive the title from the source filename or document title.
-- Keep a single metadata line after the title:
+- 标题从源文件名或文档标题中提取。
+- 标题下保留一行会议信息：
   `会议时间： {会议时间}参会人员： {参会人员}`
-- If either value is missing, use `待确认`.
+- 如果会议时间或参会人员缺失，填 `待确认`。
 
 ### 一、会议结论简述
 
-Write 1 short introductory sentence, then 2-4 numbered category sentences in this style:
+先写 1 句简短引导语，再写 2-4 条分类结论，句式保持如下风格：
 
 - `一是{问题类别}，{影响说明}。`
 - `二是{问题类别}，{影响说明}。`
 - `三是{问题类别}，{影响说明}。`
 
-The categories should be abstracted from the source, not copied from the reference meeting unless they apply.
+问题类别应从源文档中抽象归纳，不要机械照抄参考会议，除非确实适用。
 
 ### 二、重点待办台账
 
-Always include the explanation lines:
+必须包含说明行：
 
 - `优先级分为 P1（高）、P2（中）、P3（低）`
 - `状态分为 未开始、进行中、已完成`
 
-Use this exact table schema:
+表格必须使用以下字段：
 
 | 序号 | 待办事项 | 责任人 | 优先级 | 状态 | 备注 |
 
-Todo item wording should start with a concrete action, such as `完成`, `修复`, `排查`, `补充`, `系统性核查`, `优化`, `增加`, `评估`, `讨论`, `调整`, `支持`, `获取`, `沟通确认`, or `持续`.
+待办事项应以具体动作开头，例如 `完成`、`修复`、`排查`、`补充`、`系统性核查`、`优化`、`增加`、`评估`、`讨论`、`调整`、`支持`、`获取`、`沟通确认`、`持续`。
 
 ### 三、问题清单详情描述如下
 
-Group detailed items by priority. Number items continuously across all priority groups, following the reference style.
+按优先级分组展开详情。序号应在所有优先级分组中连续编号，并保持参考文档的写法。
 
-Each detail item should use this pattern when information exists:
+当源文档有对应信息时，每个问题详情使用以下格式：
 
 ```markdown
 {序号}. {问题名称}
@@ -81,36 +81,36 @@ Each detail item should use this pattern when information exists:
 - {行动二}
 ```
 
-If `影响范围` is absent in the source, omit that line instead of inventing it. If a future design is discussed but not confirmed, use `待讨论设计功能：{内容}`.
+如果源文档没有 `影响范围`，则省略该行，不要编造。若内容属于未来功能设想且未确认，使用 `待讨论设计功能：{内容}`。
 
-## Priority And Status Rules
+## 优先级、状态和责任人规则
 
-Priority:
+优先级：
 
-- `P1`: data accuracy, master data completeness, blocking use, release commitment, business continuity, customer-visible critical display, or urgent repair.
-- `P2`: workflow flexibility, approval/signoff, version traceability, collaboration rules, or ongoing collection/validation.
-- `P3`: usability, default values, search convenience, popup/table/rich-text experience, documentation clarification, or low-risk enhancement.
+- `P1`：影响数据准确性、主数据完整性、正常使用、发版承诺、业务连续性、客户可见关键展示，或属于紧急修复。
+- `P2`：涉及流程灵活性、审批/签核、版本留痕、协作规则，或持续收集与验证。
+- `P3`：涉及易用性、默认值、检索便利性、弹框/表格/富文本体验、文档澄清，或低风险增强。
 
-Status:
+状态：
 
-- `已完成`: source states completed, released, imported, fixed, synchronized, or closed.
-- `进行中`: source states ongoing, continuing, under investigation, being used, or serving as a feedback/validation input.
-- `未开始`: no progress is stated.
+- `已完成`：源文档明确表示已完成、已发版、已导入、已修复、已同步或已闭环。
+- `进行中`：源文档表示持续中、继续中、排查中、正在使用，或作为反馈/验证输入。
+- `未开始`：源文档未说明进展。
 
-Owner:
+责任人：
 
-- Keep named owners exactly when present.
-- For vendor or implementation tasks, keep the source's team name if present; otherwise use `开发团队`.
-- For customer-side confirmation, use the named person/role from source; otherwise use `客户方负责人`.
-- For ongoing feedback collection by users, use the named team from source; otherwise use `使用团队`.
+- 源文档明确点名时，保留原责任人。
+- 供应商或实施侧事项，优先保留源文档中的团队名称；未说明时写 `开发团队`。
+- 客户侧确认事项，使用源文档中的人员或角色；未说明时写 `客户方负责人`。
+- 用户持续反馈事项，使用源文档中的团队；未说明时写 `使用团队`。
 
-## Quality Bar
+## 质量要求
 
-- The output should read like a usable internal follow-up document, not a generic summary.
-- Preserve concrete evidence in `备注`, such as examples, codes, affected accounts, or planned release dates.
-- Keep table remarks short; put longer explanation in the detail section.
-- Avoid adding advice, interpretation, or new fields that are not in the template.
+- 输出应像可直接跟进的内部文档，而不是泛泛总结。
+- 在 `备注` 中保留关键证据，例如示例、编码、受影响账号或计划发版日期。
+- 表格备注保持简短；较长说明放到问题详情中。
+- 不添加模板外的新建议、新解释或新字段。
 
-## DOCX Requests
+## DOCX 请求
 
-If the user asks for a Word file, use the documents skill and visually verify the rendered DOCX before delivery. Keep the same order, headings, table fields, and detail-item pattern.
+如果用户要求输出 Word 文件，使用 documents skill 生成并渲染检查 DOCX。必须保持同样的章节顺序、标题、表格字段和问题详情格式。

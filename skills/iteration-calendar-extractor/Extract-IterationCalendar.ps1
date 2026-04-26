@@ -1,5 +1,5 @@
-# Iteration Calendar Extractor
-# Extracts iteration data from Excel first sheet starting from row 9
+# 迭代日历抽取器
+# 从 Excel 第一个工作表第 9 行开始抽取迭代数据
 
 param(
     [Parameter(Mandatory=$true)]
@@ -9,68 +9,68 @@ param(
     [string]$OutputPath = ""
 )
 
-# Validate input file
+# 校验输入文件
 if (-not (Test-Path $ExcelFilePath)) {
-    Write-Error "Excel file not found: $ExcelFilePath"
+    Write-Error "未找到 Excel 文件：$ExcelFilePath"
     exit 1
 }
 
-# Set default output path if not provided
+# 未指定输出路径时，默认输出到 Excel 同目录的同名 Markdown 文件
 if ([string]::IsNullOrWhiteSpace($OutputPath)) {
     $fileName = [System.IO.Path]::GetFileNameWithoutExtension($ExcelFilePath)
     $OutputPath = Join-Path (Split-Path $ExcelFilePath -Parent) "$fileName.md"
 }
 
-Write-Host "Processing Excel file: $ExcelFilePath"
-Write-Host "Output will be saved to: $OutputPath"
+Write-Host "正在处理 Excel 文件：$ExcelFilePath"
+Write-Host "输出文件将保存到：$OutputPath"
 
-# Create Excel application object
+# 创建 Excel 应用对象
 try {
     $excel = New-Object -ComObject Excel.Application
     $excel.Visible = $false
     $excel.DisplayAlerts = $false
 }
 catch {
-    Write-Error "Failed to create Excel application. Make sure Microsoft Excel is installed."
+    Write-Error "无法创建 Excel 应用对象。请确认本机已安装 Microsoft Excel。"
     exit 1
 }
 
-# Open workbook
+# 打开工作簿
 try {
     $workbook = $excel.Workbooks.Open($ExcelFilePath)
 }
 catch {
-    Write-Error "Failed to open Excel file: $_"
+    Write-Error "无法打开 Excel 文件：$_"
     $excel.Quit()
     exit 1
 }
 
-# Get the first sheet
+# 读取第一个工作表
 $sheet = $workbook.Sheets(1)
 Write-Host ""
-Write-Host "Processing first sheet: $($sheet.Name)"
+Write-Host "正在处理第一个工作表：$($sheet.Name)"
 
 $results = @()
 $row = 9
 
-# Process data row by row until empty iteration cell
+# 逐行处理数据，直到迭代编号单元格为空
 while ($true) {
     $iteration = $sheet.Cells($row, 1).Text
     $startDate = $sheet.Cells($row, 2).Text
     $endDate = $sheet.Cells($row, 3).Text
     
-    # Stop if iteration column is empty
+    # A 列为空时停止
     if ([string]::IsNullOrWhiteSpace($iteration)) { break }
     
-    # Clean up values
+    # 清理单元格文本
     $iteration = $iteration.Trim()
     $startDate = $startDate.Trim()
     $endDate = $endDate.Trim()
     
-    # Format the entry
-    $entry = "Iteration $iteration, $startDate is iteration start date, $endDate is iteration release date"
+    # 格式化输出条目
+    $entry = "迭代$iteration，$startDate 是迭代启动日期，$endDate 是迭代发布日期"
     
-    Write-Host "  Row $row : $entry"
+    Write-Host "  第 $row 行：$entry"
     
     $results += [PSCustomObject]@{
         Row = $row
@@ -83,38 +83,38 @@ while ($true) {
     $row++
 }
 
-# Close Excel
+# 关闭 Excel
 $workbook.Close($false)
 $excel.Quit()
 [System.Runtime.Interopservices.Marshal]::ReleaseComObject($workbook) | Out-Null
 [System.Runtime.Interopservices.Marshal]::ReleaseComObject($excel) | Out-Null
 
 Write-Host ""
-Write-Host "Extracted $($results.Count) iterations"
+Write-Host "已抽取 $($results.Count) 个迭代周期"
 
-# Generate Markdown content
-$mdContent = "# Iteration Calendar`n`n"
-$mdContent += "**Source:** $(Split-Path $ExcelFilePath -Leaf)`n`n"
-$mdContent += "**Generated:** $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')`n`n"
+# 生成 Markdown 内容
+$mdContent = "# 迭代日历`n`n"
+$mdContent += "**来源：** $(Split-Path $ExcelFilePath -Leaf)`n`n"
+$mdContent += "**生成时间：** $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')`n`n"
 $mdContent += "---`n`n"
-$mdContent += "## Iteration List`n`n"
+$mdContent += "## 迭代周期列表`n`n"
 
 foreach ($item in $results) {
     $mdContent += "- $($item.Entry)`n"
 }
 
-# Save Markdown file
+# 保存 Markdown 文件
 try {
     $utf8Encoding = New-Object System.Text.UTF8Encoding $true
     $streamWriter = New-Object System.IO.StreamWriter($OutputPath, $false, $utf8Encoding)
     $streamWriter.Write($mdContent)
     $streamWriter.Close()
     Write-Host ""
-    Write-Host "Markdown document saved: $OutputPath"
+    Write-Host "Markdown 文档已保存：$OutputPath"
 }
 catch {
-    Write-Error "Failed to save Markdown file: $_"
+    Write-Error "无法保存 Markdown 文件：$_"
     exit 1
 }
 
-Write-Host "Done!"
+Write-Host "处理完成。"
