@@ -1,0 +1,4 @@
+﻿interface:
+  display_name: "客户问题待办列表"
+  short_description: "把导入的会议纪要或客户反馈整理为客户问题收集待办列表。"
+  default_prompt: "请根据我导入的文档生成客户问题收集待办列表。"
